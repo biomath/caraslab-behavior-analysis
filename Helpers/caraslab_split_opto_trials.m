@@ -1,4 +1,4 @@
-function caraslab_split_opto_trials(directoryname)
+function caraslab_split_opto_trials(directoryname, opto_column_name)
 %preprocess(directoryname)
 %
 %This function goes through each datafile in a directory, and calculates
@@ -44,7 +44,7 @@ for i = 1:numel(files)
         % should we separate NOGO trials in time? Could cause "overfitting"
         % for more complicated opto stimulations that are not in blocks
         temp_tableSession = struct2table(Session(j).Data);
-        opto_tags = temp_tableSession.Optostim;
+        opto_tags = temp_tableSession.(opto_column_name);
         ttype_tags = temp_tableSession.TrialType;
         opto_Session = temp_tableSession(opto_tags == 1 | ttype_tags == 1, :);
         noOpto_Session = temp_tableSession(opto_tags == 0 | ttype_tags == 1, :);
