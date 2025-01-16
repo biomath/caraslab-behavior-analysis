@@ -48,7 +48,7 @@ if nargin ==0
     Savedir = uigetdir(default_dir, 'Select save directory');
     Behaviordir = default_dir;
     experiment_type = '1IFC';
-    opto_column_name = 'JitOnset';
+    opto_column_name = 'JitOnset';  % or Optostim
     split_by_optoStim = 0;
 end
 
