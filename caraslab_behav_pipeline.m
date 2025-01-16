@@ -1,4 +1,4 @@
-function caraslab_behav_pipeline(Savedir, Behaviordir, experiment_type, assert_five_amdepths, trial_subset)
+function caraslab_behav_pipeline(Savedir, Behaviordir, experiment_type, assert_five_amdepths, trial_subset, opto_column_name)
 
 % caraslab_behav_pipeline.m
 % This pipeline takes ePsych .mat behavioral files, combines and analyzes them and
@@ -36,6 +36,10 @@ if nargin < 5
     trial_subset = NaN;
 end
 
+if nargin < 6
+    opto_column_name = NaN;
+end
+
 split_by_optoStim = 0;
 
 % If this function is run directly (behavior only)
@@ -44,6 +48,7 @@ if nargin ==0
     Savedir = uigetdir(default_dir, 'Select save directory');
     Behaviordir = default_dir;
     experiment_type = '1IFC';
+    opto_column_name = 'JitOnset';
     split_by_optoStim = 0;
 end
 
@@ -92,7 +97,7 @@ for i = 1:numel(datafolders)
 
     %% 2.1 Split opto trials into separate Session entries
     if split_by_optoStim
-        caraslab_split_opto_trials(cur_savedir)
+        caraslab_split_opto_trials(cur_savedir, opto_column_name)
     end
 
     %% 3. CREATE TRIALMAT AND DPRIMEMAT IN PREPARATION FOR PSYCHOMETRIC FITTING
