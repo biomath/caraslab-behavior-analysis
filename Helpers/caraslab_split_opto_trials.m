@@ -80,7 +80,7 @@ for i = 1:numel(files)
         end
     end
     behav_sessions = behav_sessions_outputCopy;
-    %Overwrite previous allbehav_sessionss file
+    %Overwrite previous allSessions file
     save(data_file,'behav_sessions')
 end
        

@@ -28,7 +28,7 @@ end
 files = files(fileIndex);
 
 if size(files, 1) > 1
-    error('Warning! There is an extra allbehav_sessionss.mat file in the Behavior folder. Delete the incorrect one before proceeding')
+    error('Warning! There is an extra allSessions.mat file in the Behavior folder. Delete the incorrect one before proceeding')
 end
 
 %For each file...
@@ -85,10 +85,10 @@ function output = create_mats(behav_sessions, output, j, output_dir, trial_subse
     stim = [behav_sessions(j).Data.AMdepth]';
 
     %Responses (coded via bitmask in Info.Bits)
-    resp = [behav_sessions(j).Data.ResponseCode]';
+    resp = int16([behav_sessions(j).Data.ResponseCode]');
 
     %Trial type (0 = GO; 1 = NOGO)
-    ttype = [behav_sessions(j).Data.TrialType]';
+    ttype = int8([behav_sessions(j).Data.TrialType]');
 
     %Remove reminder trials
     rmind = ~logical([behav_sessions(j).Data.Reminder]');
@@ -171,8 +171,8 @@ function output = create_mats(behav_sessions, output, j, output_dir, trial_subse
     end
     
     %Pull out bits for decoding responses
-    fabit = behav_sessions(j).Info.Bits.fa;
-    hitbit = behav_sessions(j).Info.Bits.hit;
+    fabit = int8(behav_sessions(j).Info.Bits.fa);
+    hitbit = int8(behav_sessions(j).Info.Bits.hit);
 
     %-------------------------------------
     %Calculate hit rates
@@ -315,7 +315,7 @@ function output = create_mats(behav_sessions, output, j, output_dir, trial_subse
         output_table.Properties.VariableNames = {'Stimulus', 'Adjusted_N_FA_or_Hit', 'N_trials', 'N_FA_or_Hit', 'Block_id'};
     end
 
-    writetable(output_table, fullfile(output_dir, [subj_id '_allbehav_sessionss_trialMat.csv']), 'WriteMode',write_or_append);
+    writetable(output_table, fullfile(output_dir, [subj_id '_allSessions_trialMat.csv']), 'WriteMode',write_or_append);
     
     %Now dprimemat
     output_table = array2table(dprimemat);
@@ -611,4 +611,8 @@ function output = create_1IFC_mats(behav_sessions, output, j, output_dir, trial_
     end
 
     writetable(output_table, fullfile(output_dir, [subj_id '_allSessions_dprimeMat.csv']), 'WriteMode',write_or_append);
+<<<<<<< HEAD
          
+=======
+         
+>>>>>>> 9c9f72dbe796850d3ceb0ea77aede6c5bd460181
