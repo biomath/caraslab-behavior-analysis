@@ -611,8 +611,3 @@ function output = create_1IFC_mats(behav_sessions, output, j, output_dir, trial_
     end
 
     writetable(output_table, fullfile(output_dir, [subj_id '_allSessions_dprimeMat.csv']), 'WriteMode',write_or_append);
-<<<<<<< HEAD
-         
-=======
-         
->>>>>>> 9c9f72dbe796850d3ceb0ea77aede6c5bd460181
