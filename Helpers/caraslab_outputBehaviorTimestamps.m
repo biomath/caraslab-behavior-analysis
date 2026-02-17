@@ -303,7 +303,7 @@ function caraslab_outputBehaviorTimestamps(Behaviordir, Savedir, recording_forma
                 cur_session = behav_sessions(session_idx);
 
                 % TODO: Alternative to the above: extract date from ePsych
-                % file and match to folder namesda
+                % file and match to folder names
 
                 % If identified folder is not within 5 minutes of
                 % behavioral session, code probably found the wrong
@@ -313,7 +313,7 @@ function caraslab_outputBehaviorTimestamps(Behaviordir, Savedir, recording_forma
                 cur_session_timestamp = datetime(cur_session.Info.StartTime);
                 lag_seconds = seconds(cur_ephys_timestamp - cur_session_timestamp);
                 if abs(lag_seconds) > 300
-                    fprintf('EPhys folder not found for %s. Skipping session...\n', cur_path.name)
+                    fprintf('EPhys folder not found for %s %s. Skipping session...\n', cur_session.Info.Name, cur_session.Info.Date)
                     continue
                 end
 
