@@ -28,17 +28,20 @@ subplot_cols = 6; %subplot index too small
 %For each file...
 for which_file = 1:length(file_index)
     
+    %Start fresh and avoids conflict with OpenEphys pipeline
+    clear behav_sessions
 
     %Load file
     filename = file_list(file_index(which_file)).name;
-    load(fullfile(directoryname, filename));
+    behav_files = load(fullfile(directoryname, filename));
+    behav_sessions = behav_files.behav_sessions;
+    output = behav_files.output;
     
     % Skip files without Info.Bits field which indicates frequency tuning
     % protocol was used
-    if ~isfield(Session(1).Info,'Bits')
+    if ~isfield(behav_sessions(1).Info,'Bits')
         continue
     end
-    
     
     %Remove fitdata field to start fresh
     if isfield(output,'fitdata')
@@ -48,17 +51,15 @@ for which_file = 1:length(file_index)
     %Set value of dprime that we define as threshold
     options.dprimeThresh = 1;
     
-    
     %Clear plots and handle vectors
     f1 = myplot;
     f2 = myplot;
     handles_f1 = [];
     handles_f2 = [];
     
-    
     %For each session...
     for which_session = 1:numel(output)
-        
+
         clear data_to_fit;
         
         %Pull out data from a single session
@@ -116,9 +117,6 @@ for which_file = 1:length(file_index)
         d.slope = slope; %scaled
         
         output(which_session).fitdata = d;
-        
-
-        
     end
     
     
@@ -163,15 +161,17 @@ for which_file = 1:length(file_index)
     load(savename);
     block_id = {};
     thresholds = {};
+    slopes = {};
+    trial_blocks = {};
     optoStims = {};
-    for session_idx=1:numel(Session)
+    for session_idx=1:numel(behav_sessions)
         try
             try
-                cur_block_id = datestr(datetime(Session(session_idx).Info.StartTime), 'yymmdd-HHMMSS');
+                cur_block_id = datestr(datetime(behav_sessions(session_idx).Info.StartTime), 'yymmdd-HHMMSS');
             catch ME
                 if strcmp(ME.identifier, 'MATLAB:datetime:UnrecognizedDateStringSuggestLocale')
                     % Some sessions have weird format because they didn't save properly
-                    cur_block_id = [datestr(datenum(Session(session_idx).Info.StartDate), 'yymmdd') '-' Session(session_idx).Info.StartTime];
+                    cur_block_id = [datestr(datenum(behav_sessions(session_idx).Info.StartDate), 'yymmdd') '-' behav_sessions(session_idx).Info.StartTime];
 
                 else
                     throw(ME)
@@ -179,6 +179,7 @@ for which_file = 1:length(file_index)
             end
 
            cur_threshold = output(session_idx).fitdata.threshold;
+           cur_slope = output(session_idx).fitdata.slope;
         catch ME
             if strcmp(ME.identifier, 'MATLAB:structRefFromNonStruct')
                 fprintf(ME.message);
@@ -190,21 +191,31 @@ for which_file = 1:length(file_index)
 
         block_id{end+1} = cur_block_id;
         thresholds{end+1} = cur_threshold;
-                
+        slopes{end+1} = cur_slope;
+
+        % Check for trial block field
+        if isfield(behav_sessions(session_idx).Info, 'Trial_block')
+            trial_block = behav_sessions(session_idx).Info.Trial_block;
+            trial_blocks{end+1} = trial_block;
+        end
+
         % Check for Optostim field
-        if isfield(Session(session_idx).Info, 'Optostim')
-            optoStim = Session(session_idx).Info.Optostim;
+        if isfield(behav_sessions(session_idx).Info, 'Optostim')
+            optoStim = behav_sessions(session_idx).Info.Optostim;
             optoStims{end+1} = optoStim;
         end
-     
     end
-    if isempty(optoStims)
-        output_table = cell2table(horzcat(block_id', thresholds'));
 
-        output_table.Properties.VariableNames = {'Block_id' 'Threshold'};
-    else
-        output_table = cell2table(horzcat(block_id', thresholds', optoStims'));
-        output_table.Properties.VariableNames = {'Block_id' 'Threshold' 'Optostim'};
+    output_table = cell2table(horzcat(block_id', thresholds', slopes'));
+
+    output_table.Properties.VariableNames = {'Block_id' 'Threshold', 'Slope'};
+
+    if ~isempty(trial_blocks)
+        output_table.Trial_blocks = cell2mat(trial_blocks)';
+    end
+
+    if ~isempty(optoStims)
+        output_table.Optostim = cell2mat(optoStims)';
     end
 
     writetable(output_table, fullfile([savename '_psychThreshold.csv']));

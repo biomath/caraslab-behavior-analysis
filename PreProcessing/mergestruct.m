@@ -6,7 +6,7 @@
 %
 %Written by ML Caras May 2019
 
-savename = 'mergedfile.mat'; %Update with your preferred filename and path
+savename = 'SUBJ-ID-1095_03-Nov-2025_active.mat'; %Update with your preferred filename and path
 
 
 %Load first file
@@ -42,6 +42,11 @@ for i = 1:numel(fields)
          end
      end
 end
+
+% MML: modify TrialID to be continuoues and not reset
+Data = struct2table(Data);
+[Data.TrialID] = [1:size(Data, 1)]';
+Data = table2struct(Data);
 
 %Update info structure and water value
 water = A.Info.Water + B.Info.Water;
