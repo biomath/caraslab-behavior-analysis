@@ -30,6 +30,7 @@ experiment_type      = 'behavior';
 assert_five_amdepths = 0;
 trial_subset         = NaN;
 n_trial_blocks       = 0;
+silent_plot          = 0;
 
 % Loading optional arguments
 while ~isempty(varargin)
@@ -46,6 +47,8 @@ while ~isempty(varargin)
             trial_subset = varargin{2};
         case 'n_trial_blocks'
             n_trial_blocks = varargin{2};
+        case 'silent_plot'
+            silent_plot = varargin{2};
         otherwise
             error(['Unexpected parameter: ' varargin{1}])
     end
@@ -55,7 +58,7 @@ end
 
 %%  If this function is run directly (behavior only; no ephys data will be analyzed)
 if nargin == 0
-    default_dir = 'G:\My Drive\Documents\PycharmProjects\Photometry_processing\Data_OFC-axonGCaMP8s_V1-fiber\Behavioral performance\matlab_data_files';
+    default_dir = 'G:\My Drive\Documents\PycharmProjects\Photometry_processing\Data_OFC-axonGCaMP8s_ACx-fiber\Behavioral performance\matlab_data_files';
 
     % Select MULTIPLE save directories (one per animal/subject)
     Savedirs_paths = uigetfile_n_dir(default_dir, 'Select one or more save directories');
@@ -63,9 +66,10 @@ if nargin == 0
         warning('No save folders selected. Aborting...')
         return
     end
-
+    
     experiment_type   = 'behavior';
     n_trial_blocks    = 0;
+    silent_plot        = 1;
     split_by_optostim = 0;
     universal_nogo    = 1;
 
@@ -86,7 +90,7 @@ if nargin == 0
             fprintf('\n--- Behaviordir %d/%d: "%s" ---\n', b, numel(Behaviordirs), Behaviordirs{b});
             run_pipeline(Behaviordirs{b}, cur_top_savedir, ...
                 experiment_type, assert_five_amdepths, trial_subset, ...
-                n_trial_blocks, split_by_optostim, universal_nogo, false);
+                n_trial_blocks, silent_plot, split_by_optostim, universal_nogo, false);
         end
     end
 
@@ -95,13 +99,13 @@ else
     % original single-run behavior, unchanged.
     run_pipeline(Behaviordir, Savedir, ...
         experiment_type, assert_five_amdepths, trial_subset, ...
-        n_trial_blocks, split_by_optostim, universal_nogo, true);
+        n_trial_blocks, silent_plot, split_by_optostim, universal_nogo, true);
 end
 
 
 %% ------------------------------------------------------------------------
 function run_pipeline(Behaviordir, Savedir, experiment_type, assert_five_amdepths, ...
-                      trial_subset, n_trial_blocks, split_by_optostim, universal_nogo, ...
+                      trial_subset, n_trial_blocks, silent_plot, split_by_optostim, universal_nogo, ...
                       interactive)
 
 if interactive
@@ -173,7 +177,12 @@ for i = 1:numel(datafolders)
     preprocess(cur_savedir, assert_five_amdepths, trial_subset, experiment_type)
 
     %% 4. FIT PSYCHOMETRIC FUNCTIONS
-    plot_pfs_behav(cur_savedir, cur_savedir)
+    if silent_plot
+        visible_plots = 'off';
+    else 
+        visible_plots = 'on';
+    end
+    plot_pfs_behav(cur_savedir, cur_savedir, visible_plots)
 
     %% 5. OUTPUT TIMESTAMPS FOR EPHYS
     caraslab_outputBehaviorTimestamps(cur_savedir, Savedir, experiment_type)

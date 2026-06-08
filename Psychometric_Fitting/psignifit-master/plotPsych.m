@@ -32,7 +32,8 @@ else
     h = gca;
 end
 assert(ishandle(h),'Invalid axes handle provided to plot in.')
-axes(h);
+% axes(h);
+set(get(h, 'Parent'), 'CurrentAxes', h);  % MML edit
 
 if ~isfield(plotOptions,'dataColor'),      plotOptions.dataColor      = [0,105/255,170/255]; end
 if ~isfield(plotOptions,'plotData'),       plotOptions.plotData       = 1;                   end

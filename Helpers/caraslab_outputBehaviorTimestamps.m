@@ -538,6 +538,11 @@ function caraslab_outputBehaviorTimestamps(Behaviordir, Savedir, recording_forma
         case 'behavior'
             for session_idx=1:numel(behav_sessions)
                 cur_session = behav_sessions(session_idx);
+                
+                % Skip if no data exist in cur_session
+                if isscalar(cur_session.Data)
+                    continue
+                end
 
                 subj_id = cur_session.Info.Name;
                 session_id = cur_session.Info.Date;

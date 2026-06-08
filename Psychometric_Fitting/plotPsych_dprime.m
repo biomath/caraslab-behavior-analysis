@@ -1,4 +1,4 @@
-function [x,fitted_yes,fitted_dprime,threshold,slope] = ...
+function [x,fitted_yes,fitted_dprime,threshold,slope,lapse] = ...
     plotPsych_dprime(results,dprimemat,options,plotOptions,zFA)
 %[x,fitted_yes,fitted_dprime,threshold,slope] = ...
 %    plotPsych_dprime(results,dprimemat,options,plotOptions,zFA)
@@ -14,7 +14,8 @@ function [x,fitted_yes,fitted_dprime,threshold,slope] = ...
 %   zFA: scored FA rate
 %
 %
-%Written by ML Caras Dec 5 2016
+% Written by ML Caras Dec 5 2016
+% Patched by M Macedo-Lima May 5 2026
 
 
 
@@ -23,7 +24,7 @@ function [x,fitted_yes,fitted_dprime,threshold,slope] = ...
 %Calculate threshold and slope
 threshold = getThreshold(results,options.threshPC,false); %scaled threshold
 slope = getSlopePC(results,options.threshPC,false); %scaled slope
-
+lapse = results.Fit(3);
 
 %Establish x values
 xlength = max(results.data(:,1))-min(results.data(:,1));

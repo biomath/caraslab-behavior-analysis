@@ -6,7 +6,7 @@ function caraslab_compile_behaviorData_for_analyses()
 %
 
 %Prompt user to select folder
-default_dir = '/mnt/CL_8TB_3/Matheus/Ephys recordings/OFC-GtACR2_ACx-Electrode/matlab_data_files';
+default_dir = 'G:\My Drive\Documents\PycharmProjects\Photometry_processing\Data_OFC-axonGCaMP8s_ACx-fiber\Behavioral performance\matlab_data_files';
 % default_dir = '/mnt/CL_4TB_2/Matt/Fiber photometry/ACx-AAVrg-GCaMP8s_OFC-VO-fiber/matlab_data_files';
 % default_dir = '/mnt/CL_4TB_2/Matt/OFC_PL_recording/matlab_data_files';
 Savedir = uigetdir(default_dir, 'Select save directory');

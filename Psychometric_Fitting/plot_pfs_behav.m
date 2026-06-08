@@ -1,4 +1,4 @@
-function plot_pfs_behav(directoryname,figuredirectory)
+function plot_pfs_behav(directoryname,figuredirectory, varargin)
 %plot_pfs_behav(directoryname,figuredirectory)
 %
 %For each animal in a specified directory, this function
@@ -12,10 +12,18 @@ function plot_pfs_behav(directoryname,figuredirectory)
 
 % Patched by M Macedo-Lima November, 2020
 % Patched by R Ying November 2022
+% Patched by M Macedo-Lima May 5 2026
 
 %---------------------------------------
 warning('off','psignifit:ThresholdPCchanged');
 set(0,'DefaultTextInterpreter','none');
+
+% Parse optional 'off' argument for silent plotting
+silent = any(strcmpi(varargin, 'off'));
+
+if silent
+    set(0, 'DefaultFigureVisible', 'off');
+end
 
 [options, plotOptions] = setOptions;
 
@@ -52,8 +60,8 @@ for which_file = 1:length(file_index)
     options.dprimeThresh = 1;
     
     %Clear plots and handle vectors
-    f1 = myplot;
-    f2 = myplot;
+    f1 = myplot(silent);
+    f2 = myplot(silent);
     handles_f1 = [];
     handles_f2 = [];
     
@@ -78,9 +86,9 @@ for which_file = 1:length(file_index)
         [options,results,zFA] = find_threshPC(data_to_fit,options);
         
         %Plot the percent correct values and fit, and save handles
-        figure(f1);
-        s = subplot(subplot_rows,subplot_cols,which_session);
-        plotPsych(results,plotOptions);
+        s = subplot(subplot_rows, subplot_cols, which_session, 'Parent', f1);
+        plotOptions.h = s;  % pass axes handle directly to plotPsych
+        plotPsych(results, plotOptions);
         handles_f1 = [handles_f1;s]; %#ok<*AGROW>
         
         
@@ -88,10 +96,9 @@ for which_file = 1:length(file_index)
         %------------------------------------------------------
         %Now transform to dprime space
         %------------------------------------------------------
-        figure(f2)
-        s2 = subplot(subplot_rows,subplot_cols,which_session);
+        s2 = subplot(subplot_rows, subplot_cols, which_session, 'Parent', f2);
         try
-        [x,fitted_yes,fitted_dprime,threshold,slope] = ...
+        [x,fitted_yes,fitted_dprime,threshold,slope,lapse] = ...
             plotPsych_dprime(results,...
             output(which_session).dprimemat,options,plotOptions,zFA);
         catch ME
@@ -115,7 +122,7 @@ for which_file = 1:length(file_index)
         d.fit_plot.dprime = fitted_dprime;
         d.threshold = threshold; %scaled
         d.slope = slope; %scaled
-        
+        d.lapse = lapse;
         output(which_session).fitdata = d;
     end
     
@@ -142,12 +149,15 @@ for which_file = 1:length(file_index)
         end
         
         fname = [file_list(file_index(which_file)).name(1:end-4),figType];
-        suptitle(fname(4:end-4))
+        annotation(f, 'textbox', [0 1 1 0], 'String', fname(4:end-4), ...
+            'EdgeColor', 'none', 'HorizontalAlignment', 'center', ...
+            'FontSize', 12, 'FontWeight', 'bold');
         set(f,'PaperPositionMode','auto');
         print(f,'-painters','-depsc', fullfile(figuredirectory,fname))
     end
     
-    close all
+    close(f1);
+    close(f2);
     
     
     %Save file
@@ -162,6 +172,7 @@ for which_file = 1:length(file_index)
     block_id = {};
     thresholds = {};
     slopes = {};
+    lapses = {};
     trial_blocks = {};
     optoStims = {};
     for session_idx=1:numel(behav_sessions)
@@ -180,6 +191,7 @@ for which_file = 1:length(file_index)
 
            cur_threshold = output(session_idx).fitdata.threshold;
            cur_slope = output(session_idx).fitdata.slope;
+           cur_lapse = output(session_idx).fitdata.lapse;
         catch ME
             if strcmp(ME.identifier, 'MATLAB:structRefFromNonStruct')
                 fprintf(ME.message);
@@ -192,6 +204,7 @@ for which_file = 1:length(file_index)
         block_id{end+1} = cur_block_id;
         thresholds{end+1} = cur_threshold;
         slopes{end+1} = cur_slope;
+        lapses{end+1} = cur_lapse;
 
         % Check for trial block field
         if isfield(behav_sessions(session_idx).Info, 'Trial_block')
@@ -206,9 +219,9 @@ for which_file = 1:length(file_index)
         end
     end
 
-    output_table = cell2table(horzcat(block_id', thresholds', slopes'));
+    output_table = cell2table(horzcat(block_id', thresholds', slopes', lapses'));
 
-    output_table.Properties.VariableNames = {'Block_id' 'Threshold', 'Slope'};
+    output_table.Properties.VariableNames = {'Block_id' 'Threshold', 'Slope', 'Lapse'};
 
     if ~isempty(trial_blocks)
         output_table.Trial_blocks = cell2mat(trial_blocks)';
@@ -222,9 +235,8 @@ for which_file = 1:length(file_index)
     
 end
 
+if silent
+    set(0, 'DefaultFigureVisible', 'on');
 end
 
-
-
-
-
+end
