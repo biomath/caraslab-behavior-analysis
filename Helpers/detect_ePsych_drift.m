@@ -13,6 +13,11 @@ function [session_data, iterations, success] = detect_ePsych_drift(session_data,
     % They are not reliable but large discrepancies indicate an issue
     
     % Author: M Macedo-Lima, Dec 2024
+
+    if nargin < 5
+        original_session_data = session_data;
+    end
+
     if nargin < 6
         iterations = 0;
     end
