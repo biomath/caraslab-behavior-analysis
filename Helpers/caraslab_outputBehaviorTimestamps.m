@@ -143,6 +143,7 @@ function caraslab_outputBehaviorTimestamps(Behaviordir, Savedir, recording_forma
                     fprintf(fileID,'%s,%s,%f,%f\n', output_cell{:});
                 end
                 fclose(fileID);
+
                 %% Output opto LED onset-offset timestamps (if they exist)
                 if isfield(epData.epocs, 'LEDt')
                     led_onsets = epData.epocs.LEDt.onset;
@@ -161,6 +162,26 @@ function caraslab_outputBehaviorTimestamps(Behaviordir, Savedir, recording_forma
                     end
                     fclose(fileID);
                 end
+
+                %% Output Camera frame onset timestamps
+                % Specific to TDT Synapse recording
+                if isfield(epData.epocs, 'Cam1')
+                    cam_onsets = epData.epocs.Cam1.onset;
+    
+                    fileID = fopen(fullfile(cur_savedir, 'Info files', ...
+                        [subj_id '_' session_id '_cameraTimestamps.csv']), 'w');
+    
+                    header = {'Subj_id', 'behav_sessions_id', 'Cam_frame_onset'};
+                    fprintf(fileID,'%s,%s,%s,%s\n', header{:});
+                    nrows = length(cam_onsets);
+                    for idx = 1:nrows
+                        output_cell = {subj_id, session_id, cam_onsets(idx)};
+                        
+                        fprintf(fileID,'%s,%s,%.6f\n', output_cell{:});  
+                    end
+                    fclose(fileID);
+                end
+
                 %% Output trial parameters
                 % Combine the ephys-timelocked timestamps with the 
                 % session info from ePsych; also translate the response code bitmask
